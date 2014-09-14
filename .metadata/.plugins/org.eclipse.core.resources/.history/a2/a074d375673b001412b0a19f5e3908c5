@@ -1,0 +1,70 @@
+package com.example.myopenstack;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class Login extends ActionBarActivity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login_activity);
+		Button button = (Button) findViewById(R.id.button1);
+		button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+        		EditText un = (EditText)findViewById(R.id.editText1);
+        		String userName = un.getText().toString();
+        		EditText pass = (EditText)findViewById(R.id.editText2);
+        		String password = pass.getText().toString();
+        		new LoginTask().execute("192.168.56.101", "admin", userName, password);		
+            }
+        });
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.login, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	private class LoginTask extends AsyncTask<String, Void, String> {
+		@Override
+		protected String doInBackground(String... params) {
+			OSClient osc = OSEndpoint.get();
+			osc.authenticate(params[0].toString(), params[1].toString(), params[2].toString(), params[3].toString());
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			OSClient osc = OSEndpoint.get();
+			if (osc.isAuthenticated()) {
+				//switch activity
+			} else {
+				TextView err = (TextView)findViewById(R.id.textViewErr);
+				err.setText("Login Failed");
+			}
+		}
+	}
+}

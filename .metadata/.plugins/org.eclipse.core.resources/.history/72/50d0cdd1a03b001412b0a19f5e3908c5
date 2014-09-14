@@ -1,0 +1,7 @@
+
+public class ImageModel {
+	private String name;
+	private String id;
+	private String uri;
+	
+}

@@ -1,0 +1,59 @@
+import java.util.List;
+
+import com.example.myopenstack.OSClient;
+import com.example.myopenstack.R;
+import com.example.myopenstack.ServerModel;
+
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+public class BackgroundTask extends AsyncTask<String, Void, String> {
+
+	List<ServerModel> servers;
+
+	private void populateMainTable() {
+		OSClient osc = new OSClient();
+		osc.authenticate("192.168.56.101", "admin", "admin", "cded84956ebc46ae");
+		servers = osc.getServerList();
+		
+		TableLayout tl = (TableLayout) findViewById(R.id.tableLayout1);
+
+		for (ServerModel sm : servers) {
+			// -----------------
+			TableRow tr1 = new TableRow(tl.getContext());
+			tr1.setBackgroundColor(Color.BLUE);
+
+			TextView textview = new TextView(tl.getContext());
+			textview.setText(sm.getName());
+			textview.setTextColor(Color.BLACK);
+			tr1.addView(textview);
+
+			textview = new TextView(tl.getContext());
+			textview.setText(sm.id);
+			textview.setTextColor(Color.BLACK);
+			tr1.addView(textview);
+
+			textview = new TextView(tl.getContext());
+			textview.setText(sm.name);
+			textview.setTextColor(Color.BLACK);
+			tr1.addView(textview);
+
+			tl.addView(tr1);
+		}
+		
+	}
+
+	@Override
+	protected String doInBackground(String... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(String result) {
+	}
+
+}

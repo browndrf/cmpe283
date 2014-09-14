@@ -1,0 +1,20 @@
+<tablelayout android:layout_height="fill_parent" android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+    <tablerow>
+ <textview android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Enter your name">
+    <edittext android:layout_height="wrap_content" android:layout_width="150px">
+    <Button
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content"
+    android:text="Submit"
+    />    
+    </edittext></textview></tablerow>
+ 
+ <tablerow>
+ <textview android:layout_height="wrap_content" android:layout_span="2" android:layout_width="wrap_content" android:text="Spanning Two columns">
+    <Button
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content"
+    android:text="Cancel"
+    />    
+ </textview></tablerow>
+</tablelayout>

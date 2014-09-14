@@ -1,0 +1,175 @@
+package com.example.myopenstack;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+public class MainActivity extends ActionBarActivity {
+
+	public String readHttpResponse(HttpResponse response) {
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent()));
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (Exception e) {
+
+		}
+		return sb.toString();
+	}
+	
+	private void authenticate() {
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					HttpClient hc = new DefaultHttpClient();
+					String json = "{\"auth\": {\"tenantName\": \"admin\", \"passwordCredentials\": {\"username\": \"admin\", \"password\": \"cded84956ebc46ae\"}}}";
+					HttpPost post = new HttpPost(
+							"http://192.168.56.101:5000/v2.0/tokens");
+					post.addHeader("Content-type", "application/json");
+					post.addHeader("Accept", "application/json");
+					post.setEntity(new StringEntity(json));
+
+					JSONObject jo = new JSONObject(readHttpResponse(hc
+							.execute(post)));
+					jo = (JSONObject) jo.get("access");
+					jo = (JSONObject) jo.get("token");
+					String id = jo.getString("id");
+					
+				} catch (IOException | JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				// -----------------
+				TableLayout tl = (TableLayout) findViewById(R.id.tableLayout1);
+				tl.setBackgroundColor(Color.LTGRAY);
+
+				TableRow tr1 = new TableRow(tl.getContext());
+				tr1.setBackgroundColor(Color.BLUE);
+
+				TextView textview = new TextView(tl.getContext());
+				textview.setText("ID");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				textview = new TextView(tl.getContext());
+				textview.setText("Status");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				textview = new TextView(tl.getContext());
+				textview.setText("Action");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				tl.addView(tr1);
+
+				// -----------------
+			}
+		});
+		t.start();
+		
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				try {
+					HttpClient hc = new DefaultHttpClient();
+					String json = "{\"auth\": {\"tenantName\": \"admin\", \"passwordCredentials\": {\"username\": \"admin\", \"password\": \"cded84956ebc46ae\"}}}";
+					HttpPost post = new HttpPost(
+							"http://192.168.56.101:5000/v2.0/tokens");
+					post.addHeader("Content-type", "application/json");
+					post.addHeader("Accept", "application/json");
+					post.setEntity(new StringEntity(json));
+
+					JSONObject jo = new JSONObject(readHttpResponse(hc
+							.execute(post)));
+					jo = (JSONObject) jo.get("access");
+					jo = (JSONObject) jo.get("token");
+					String id = jo.getString("id");
+					
+				} catch (IOException | JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				// -----------------
+				TableLayout tl = (TableLayout) findViewById(R.id.tableLayout1);
+				tl.setBackgroundColor(Color.LTGRAY);
+
+				TableRow tr1 = new TableRow(tl.getContext());
+				tr1.setBackgroundColor(Color.BLUE);
+
+				TextView textview = new TextView(tl.getContext());
+				textview.setText("ID");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				textview = new TextView(tl.getContext());
+				textview.setText("Status");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				textview = new TextView(tl.getContext());
+				textview.setText("Action");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);
+
+				tl.addView(tr1);
+
+				// -----------------
+			}
+		});
+		t.start();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+}

@@ -1,0 +1,112 @@
+package com.example.myopenstack;
+
+import java.util.List;
+
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+public class ImageActivity extends ActionBarActivity {
+	
+	public static List<ImageModel> images;
+	
+	private void drawTableHeaders() {
+		TableLayout tl = (TableLayout) findViewById(R.id.imageTable);
+		tl.setBackgroundColor(Color.LTGRAY);
+		TableRow tr1 = new TableRow(tl.getContext());
+		tr1.setBackgroundColor(Color.BLUE);
+
+		TextView textview = new TextView(tl.getContext());
+		textview.setText("Name");
+		textview.setTextColor(Color.BLACK);
+		tr1.addView(textview);
+
+		textview = new TextView(tl.getContext());
+		textview.setText("Action");
+		textview.setTextColor(Color.BLACK);
+		tr1.addView(textview);
+
+		tl.addView(tr1);
+	}
+
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_image);
+		drawTableHeaders();
+		new PopulateTableTask().execute("");
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.image, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	private class PopulateTableTask extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			OSClient osc = OSEndpoint.get();
+			images = osc.getImageList();
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			TableLayout tl = (TableLayout) findViewById(R.id.imageTable);
+			tl.removeAllViewsInLayout();
+			for (int i = 0; i < images.size(); i++) {
+				TableRow tr1 = new TableRow(tl.getContext());
+				tr1.setBackgroundColor(Color.WHITE);
+
+//				Button b = new Button(tl.getContext());
+//				b.setText("Launch");
+//				b.setId(i);
+//				b.setOnClickListener(new View.OnClickListener() {
+//					public void onClick(View v) {
+//						new OpenStackTask().execute("launch",
+//								Integer.toString(v.getId()));
+//					}
+//				});
+
+				//tl.addView(tr1);
+			}
+		}	
+	}
+	
+	private class OpenStackTask extends AsyncTask<String, Void, String> {
+		@Override
+		protected String doInBackground(String... params) {
+			OSClient osc = OSEndpoint.get();
+			if (params[0].equalsIgnoreCase("launch")) {
+				int index = Integer.parseInt(params[1]);
+				osc.launchServer(ImageActivity.images.get(index));
+			}
+			return "";
+		}
+	}
+
+}

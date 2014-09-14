@@ -1,0 +1,60 @@
+package com.example.myopenstack;
+
+import android.graphics.Color;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+public class PopulateTableTask {
+	@Override
+	protected String doInBackground(String... params) {
+		OSClient osc = new OSClient();
+		osc.authenticate("192.168.56.101", "admin", "admin",
+				"cded84956ebc46ae");
+		servers = osc.getServerList();
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(String result) {
+		TableLayout tl = (TableLayout) findViewById(R.id.tableLayout1);
+		for (int i=0; i<servers.size(); i++) {
+			ServerModel sm = servers.get(i);
+			// -----------------
+			TableRow tr1 = new TableRow(tl.getContext());
+			tr1.setBackgroundColor(Color.WHITE);
+
+			TextView textview = new TextView(tl.getContext());
+			textview.setText(sm.getName());
+			textview.setTextColor(Color.BLACK);
+			tr1.addView(textview);
+
+			textview = new TextView(tl.getContext());
+			textview.setText(sm.getStatus());
+			textview.setTextColor(Color.BLACK);
+			tr1.addView(textview);
+
+			
+			if (sm.isStoppable()) {
+				Button b = new Button(tl.getContext());
+				b.setText("Stop");
+				b.setId(i);
+				b.setOnClickListener(new View.OnClickListener() {
+				    public void onClick(View v) {
+				    	ServerModel sm = MainActivity.servers.get(v.getId());
+				    }
+				});
+				tr1.addView(b);
+			} else {
+				textview = new TextView(tl.getContext());
+				textview.setText("n/a");
+				textview.setTextColor(Color.BLACK);
+				tr1.addView(textview);					
+			}
+
+			tl.addView(tr1);
+		}
+	}
+}

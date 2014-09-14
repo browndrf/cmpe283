@@ -1,0 +1,25 @@
+package com.example.openstack;
+
+import java.util.List;
+
+import org.openstack4j.api.OSClient;
+import org.openstack4j.api.compute.ComputeService;
+import org.openstack4j.model.compute.Server;
+import org.openstack4j.openstack.OSFactory;
+
+public class OpenStackClient {
+	public OpenStackClient() {
+	}
+	public OSClient init(){
+    	OSClient os = OSFactory.builder()
+                .endpoint("http://localhost:5000/v2.0")
+                .credentials("admin","cded84956ebc46ae")
+                .tenantName("admin")
+                .authenticate();
+    	ComputeService cs = os.compute();
+    	List<? extends Server> servers = cs.servers().list();
+    	for (Server server: servers){
+    		System.out.println(server.getName());
+    	}
+	}
+}

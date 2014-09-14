@@ -1,0 +1,36 @@
+package com.example.openstack;
+
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+public class OpenStackClient {
+	HttpClient httpClient;
+	String baseUri;
+
+	public OpenStackClient(String ipAddress, String tenant, String user,
+			String pass) {
+		try {
+			baseUri = "http://" + ipAddress;
+
+			httpClient = new DefaultHttpClient();
+
+			String authUrl = baseUri + ":5000/v2.0/tokens";
+
+			HttpPost postReq = new HttpPost(authUrl);
+			String postData = "{\"auth\": {\"tenantName\": \"" + tenant
+					+ "\", \"passwordCredentials\": {\"username\": \"" + user
+					+ "\", \"password\": \"" + pass + "\"}}}";
+			postReq.setEntity(new StringEntity(postData));
+			
+			httpClient.equals(postReq);
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}

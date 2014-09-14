@@ -1,0 +1,22 @@
+package com.example.openstack;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+
+public class OpenStackClient {
+	HttpClient httpClient;
+	String baseUri;
+	public OpenStackClient(String ipAddress, String tenant, String user, String pass) {
+		baseUri = "http://" + ipAddress;
+		
+		httpClient = new DefaultHttpClient();
+		
+		String authUrl = baseUri + ":5000/v2.0/tokens";
+		
+		HttpPost postReq = new HttpPost(authUrl);
+		StringEntity postData = "{\"auth\": {\"tenantName\": \"admin\", \"passwordCredentials\": {\"username\": \"admin\", \"password\": \"devstack\"}}}";
+	}
+}

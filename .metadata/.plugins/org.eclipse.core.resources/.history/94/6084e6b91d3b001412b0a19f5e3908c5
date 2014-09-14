@@ -1,0 +1,28 @@
+import java.util.List;
+
+import com.example.myopenstack.OSClient;
+import com.example.myopenstack.ServerModel;
+
+import android.os.AsyncTask;
+
+public class BackgroundTask extends AsyncTask<String, Void, String> {
+
+	List<ServerModel> servers;
+
+	private void populateMainTable() {
+		OSClient osc = new OSClient();
+		osc.authenticate("192.168.56.101", "admin", "admin", "cded84956ebc46ae");
+		servers = osc.getServerList();
+	}
+
+	@Override
+	protected String doInBackground(String... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(String result) {
+	}
+
+}

@@ -1,0 +1,171 @@
+package com.example.myopenstack;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class OSClient {
+
+	private static String token = null;
+	private String ipAddr;
+	private String tenantId;
+	
+	public boolean isAuthenticated() {
+		return token != null;
+	}
+
+	private String readHttpResponse(HttpResponse response) {
+		StringBuffer sb = new StringBuffer();
+
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent()));
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (Exception e) {
+
+		}
+		return sb.toString();
+	}
+
+	private String POST(String url, String postData)
+			throws ClientProtocolException, IOException {
+		HttpClient hc = new DefaultHttpClient();
+		HttpPost post = new HttpPost(url);
+		post.addHeader("Content-type", "application/json");
+		post.addHeader("Accept", "application/json");
+		if (token != null) {
+			post.addHeader("X-Auth-Token", token);
+		}
+		post.setEntity(new StringEntity(postData));
+		return readHttpResponse(hc.execute(post));
+	}
+
+	private String GET(String url) throws ClientProtocolException, IOException {
+		HttpClient hc = new DefaultHttpClient();
+		HttpGet get = new HttpGet(url);
+		get.addHeader("Content-type", "application/json");
+		get.addHeader("Accept", "application/json");
+		if (token != null) {
+			get.addHeader("X-Auth-Token", token);
+		}
+		return readHttpResponse(hc.execute(get));
+	}
+
+	public void authenticate(String ipAddr, String tenant, String userName,
+			String pass) {
+		try {
+			this.ipAddr = ipAddr;
+			this.tenantId = tenant;
+
+			String authData = "{\"auth\": {\"tenantName\": \"" + tenant
+					+ "\", \"passwordCredentials\": {\"username\": \""
+					+ userName + "\", \"password\": \"" + pass + "\"}}}";
+
+			String authUrl = "http://" + ipAddr + ":5000/v2.0/tokens";
+
+			JSONObject jo = new JSONObject(POST(authUrl, authData));
+			jo = (JSONObject) jo.get("access");
+			jo = (JSONObject) jo.get("token");
+			token = jo.getString("id");
+			jo = (JSONObject) jo.get("tenant");
+			tenantId = jo.getString("id");
+
+		} catch (IOException | JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	private ServerModel getServerModel(JSONObject server) throws JSONException {
+		ServerModel sm = new ServerModel();
+		sm.setId(server.getString("id"));
+		sm.setName(server.getString("name"));
+		sm.setStatus(server.getString("status"));
+		JSONArray links = server.getJSONArray("links");
+		sm.setUrl(links.getJSONObject(0).getString("href"));
+		return sm;
+	}
+	
+	private ImageModel getImageModel(JSONObject image) {
+		ImageModel im = new ImageModel();
+		im.setId(image.getString("id"));
+		im.setName(image.getString("name"));
+		JSONArray links = image.getJSONArray("links");
+		im.setUrl(links.getJSONObject(0).getString("href"));
+		return sm;		
+	}
+
+	public List<ServerModel> getServerList() {
+		ArrayList<ServerModel> result = new ArrayList<ServerModel>();
+
+		try {
+			// http://208.123.85.197:8774/v2/tenant_id/servers
+			String serverListUrl = "http://" + this.ipAddr + ":8774/v2/"
+					+ this.tenantId + "/servers/detail";
+			JSONObject jo = new JSONObject(GET(serverListUrl));
+			Object o = jo.get("servers");
+			if (o instanceof JSONArray) {
+				JSONArray ja = (JSONArray) o;
+				for (int i = 0; i < ja.length(); i++) {
+					result.add(getServerModel(ja.getJSONObject(i)));
+				}
+			} else if (o instanceof JSONObject) {
+				result.add(getServerModel((JSONObject) o));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public List<ImageModel> getImageList() {
+		ArrayList<ImageModel> result = new ArrayList<ImageModel>();
+		try {
+			// http://208.123.85.197:8774/v2/tenant_id/servers
+			String imageListUrl = "http://" + this.ipAddr + ":8774/v2/"
+					+ this.tenantId + "/images";
+			JSONObject jo = new JSONObject(GET(imageListUrl));
+			
+			Object o = jo.get("images");
+			if (o instanceof JSONArray) {
+				JSONArray ja = (JSONArray) o;
+				for (int i = 0; i < ja.length(); i++) {
+					result.add(getServerModel(ja.getJSONObject(i)));
+				}
+			} else if (o instanceof JSONObject) {
+				result.add(getServerModel((JSONObject) o));
+			}
+			
+			
+		}catch(Exception e) {
+			
+		}
+		
+		return result;
+	}
+
+	public void stopServer(ServerModel sm){
+		try {
+			POST(sm.getUrl() + "/action", "{\"os-stop\" : null}");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+}
